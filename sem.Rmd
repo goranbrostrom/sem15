@@ -10,6 +10,7 @@ output:
   ioslides_presentation:
     fig_height: 3
     highlight: tango
+    logo: figures/umu15.png
   slidy_presentation:
     highlight: tango
 css: style.css
@@ -64,7 +65,7 @@ Source: http://r4stats.com
 
 ## Why RStudio?
 
-Literate programming:
+Literate programming (Knuth, 1984):
 
 * Dynamic report (paper) writing, programming, and documentation in one.
 
@@ -262,18 +263,37 @@ rownames(T) <- c("woman", "man")
 knitr::kable(T, digits = 2)
 ```
 
-## Analysis
+## Analysis (but wrong presentation!)
 
 ```{r analy, echo = FALSE, results = 'asis', message=FALSE}
 fit.gender <- coxreg(Surv(time, death) ~ gender, data = dat)
 fit.both <- coxreg(Surv(time, death) ~ gender + civ, data = dat)
 library(stargazer)
-stargazer(fit.gender, fit.both)
+stargazer(fit.gender, fit.both, header = FALSE, font.size = "scriptsize")
+```
+
+## Simpson's paradox!
+
+(Exponential distribution)
+
+$$
+\text{Relative Bias} \approx \frac{(n_{11} \alpha + n_{12})(n_{21} + n_{22})}{(n_{11} + n_{12})(n_{21} \alpha + n_{22})}
+$$
+```{r relbi, fig.height = 5, echo = FALSE}
+source("R/bias.R")
+alpha <- seq(0.1, 10, length = 1000)
+y <- bias(alpha, exp(1), matrix(c(1000, 2000, 2000, 1000), ncol = 2))
+plot(alpha, y, type = "l", col = "blue", ylab = "RB(Hazard ratio)", axes = FALSE)
+axis(1, at = c(0.1, 1, 2, 5, 10))
+axis(2)
+box()
+abline(v = 1, lty = 2)
+abline(h = 1, lty = 2)
 ```
 
 ## Infant and maternal mortality {.smaller}
 
-Matched, left-truncated data (four first rows):
+Matched, left-truncated data (four first rows). 35 infants whose mothers died. Two controls for each.
 ```{r sevenp, echo=FALSE,results='asis'}
 library(eha)
 ##library(xtable)
@@ -291,6 +311,12 @@ fit <- coxreg(Surv(enter, exit, event) ~ mother +
 dr <- drop1(fit, test = "Chisq")
 ltx(fit, dr = dr, digits=4)
 ```
+
+## References
+
+Broström, G. (1987), The influence of mother's mortality on infant mortality. *Scandinavian Journal of Statistics* **14**, 251--261.
+
+Broström, G. (2012). *Event History Analysis with R.* CRC Press/Chapman & Hall, Boca Raton, CA, USA.
 
 ## The two-sample problem (example)
 
@@ -339,10 +365,10 @@ The sign test: p = 2 * .5^10 = 0.00195 (two-sided)
 
 ## The 'Hauck-Donner effect' (example)
 
-```{r hdata, fig.height=6,echo=FALSE}
+```{r hdata, fig.height=6, fig.width = 6, echo=FALSE}
 dat = data.frame(T = 1:10, x = c(1:4, 5.02, 4.98, 7:10), event = rep(1, 10))
 dat = dat[order(dat$x), ]
-with(dat, plot(x, T, type = "b", col = "blue", lty = 2, ylim = c(0, 10)))
+with(dat, plot(x, T, type = "b", col = "blue", lty = 2, ylim = c(0, 10), xlim = c(0, 10)))
 ```
 
 ## Linear regression, code
@@ -393,7 +419,18 @@ knitr::kable(dr, digits = 4)
 anova(fit)
 ```
 
- *Note* the **Hauck-Donner** effect! 
+ *Note* the **Hauck-Donner** (1977; *JASA* **72** 851--853) effect! 
  
  Strikes in *non-linear* models (not only Cox)!
 
+## What could we do better?
+
+1. Better synchronisation between teachers of R/RStudio!
+
+2. More R/RSrudio stuff the first week.
+
+3. More exercises --- less project work.
+
+4. One or two more lab assistants
+
+     * Negotiation with the statistics department broke down(?)
