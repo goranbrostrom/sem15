@@ -97,12 +97,18 @@ Navigate to course home page
     * centering
     * Presentation of results
 2. Omitted covariates in PH regression
+    * Don't!
 3. Causality and matching
 4. The Hauck-Donner effect
-
+    * Bann the Wald $p$-values and significance stars!
+    
 ## Interaction
 
-Data from Skellefteå: Old age mortality, ses and birthdate with interaction
+Data from Skellefteå: Old age mortality, 
+
+* ses and 
+* birthdate 
+* with interaction
 
 ```{r interact, echo=FALSE,message=FALSE}
 library(eha)
@@ -229,7 +235,7 @@ abline(v = c(1800, 1820), lty = 2)
 
 -->
 
-## Omitted covariates, example
+## Omitted covariates, example (simulated data)
 
 ```{r simdata, echo=FALSE}
 source("R/sim.R")
@@ -400,37 +406,73 @@ anova(fit)
 
 Wald test:
 
-```{r coxreg, message=FALSE, echo=FALSE}
+```{r coxreg, message=FALSE, echo=FALSE, results = 'asis'}
 library(eha)
-fit = coxph(Surv(T, event) ~ x, data = dat)
-knitr::kable(summary(fit)$coef, digits = 3)
+fit = coxreg(Surv(T, event) ~ x, data = dat)
+##knitr::kable(summary(fit)$coef, digits = 3)
+ltx(fit)
 ```
 
 LR test:
 
-```{r drop1an, echo = FALSE}
-dr = anova(fit)
-knitr::kable(dr, digits = 4)
+\scriptsize
+
+```{r drop1an, echo = FALSE, results = 'asis'}
+dr = drop1(fit, test = "Chisq")
+##knitr::kable(dr, digits = 4)
+ltx(fit, dr = dr, digits = 6)
 ```
+
 
 ## Cox regression, Likelihood Ratio Test
 
+<!--
 ```{r drop1an2}
 anova(fit)
 ```
+-->
 
  *Note* the **Hauck-Donner** (1977; *JASA* **72** 851--853) effect! 
  
  Strikes in *non-linear* models (not only Cox)!
 
+## The "graphical"" explanation
+
+```{r grapex, echo = FALSE, fig.height = 7}
+source("R/koll2.R")
+res = koll2()
+```
+
+## Wald and presentation (bad)
+
+````{r bad, echo = FALSE, results = 'asis'}
+fit <- coxreg(Surv(enter, exit, event) ~ civ + region, data = oldmort)
+ltx(fit)
+```
+
+## LR and presentation (good)
+
+````{r good, echo = FALSE, results = 'asis'}
+fit <- coxreg(Surv(enter, exit, event) ~ civ + region, data = oldmort)
+dr <- drop1(fit, test = "Chisq")
+ltx(fit, dr = dr, digits = 4)
+```
+
+
 ## What could we do better?
 
 1. Better synchronisation between teachers of R/RStudio!
 
-2. More R/RSrudio stuff the first week.
+2. More R/RStudio stuff the first week.
+
+    * More Johan J.!
 
 3. More exercises --- less project work.
 
 4. One or two more lab assistants
 
      * Negotiation with the statistics department broke down(?)
+     
+5. Course evaluations were constructive and in general positive.     
+
+     * Service and organisation of practical matters were *excellent*! Thanks Annika!
